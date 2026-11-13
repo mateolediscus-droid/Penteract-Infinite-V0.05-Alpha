@@ -1,0 +1,121 @@
+#version 450 core
+#extension GL_ARB_bindless_texture : require
+in vec2 uv;
+out vec4 color;
+uniform float eye[6], forward[6], right[6], up[6];
+uniform float aspect;
+uniform int textureUAxis;
+uniform int lookupMask;
+uniform bool directLookup;
+uniform int lookupAxes[2], lookupOrigin[3], lookupSize[3], lookupSlice[6];
+layout(std430,binding=5) readonly buffer Keys { uint keys[]; };
+layout(std430,binding=1) readonly buffer Chunks { uint blocks[]; };
+layout(std430,binding=2) readonly buffer Faces { int textures[]; };
+layout(std430,binding=3) readonly buffer Tiles { uvec2 tiles[]; };
+layout(std430,binding=4) readonly buffer Masks { int masks[]; };
+uniform int maskCount, redirector, doorOpen, target[6], targetSide;
+uniform bool preview;
+uniform float boxMin[6], boxMax[6];
+vec4 textureCoordinates(float hit[6], int normalAxis)
+{
+    // NDTF assets have four tangent coordinates: retain the 5D face basis.
+    // When U is visible, substitute one hidden axis instead of shearing UVs.
+    if(textureUAxis>=0) {
+        hit[textureUAxis]=hit[5];
+        if(normalAxis==5) normalAxis=textureUAxis;
+    }
+    if(normalAxis==1) return fract(vec4(hit[2],1.-hit[0],hit[3],hit[4]));
+    if(normalAxis==0) return fract(vec4(hit[1],1.-hit[2],hit[3],hit[4]));
+    if(normalAxis==2) return fract(vec4(hit[1],1.-hit[0],hit[3],hit[4]));
+    if(normalAxis==3) return fract(vec4(hit[2],1.-hit[0],hit[1],hit[4]));
+    return fract(vec4(hit[2],1.-hit[0],hit[3],hit[1]));
+}
+uint blockAt(int p[6])
+{
+    if(directLookup) {
+        for(int i=1;i<6;++i)
+            if(i!=lookupAxes[0] && i!=lookupAxes[1] && p[i]!=lookupSlice[i])return 65535u;
+        int a=int(floor(float(p[0])/32.));
+        ivec3 q=ivec3(a,p[lookupAxes[0]],p[lookupAxes[1]])-ivec3(lookupOrigin[0],lookupOrigin[1],lookupOrigin[2]);
+        if(any(lessThan(q,ivec3(0))) || any(greaterThanEqual(q,ivec3(lookupSize[0],lookupSize[1],lookupSize[2]))))return 65535u;
+        uint offset=keys[q.x+lookupSize[0]*(q.y+lookupSize[1]*q.z)];
+        return offset==0u?65535u:blocks[(offset-1u)*32u+uint(p[0]-a*32)];
+    }
+    int key[6];uint h=2166136261u;
+    for(int i=0;i<6;++i) {
+        key[i]=i==0?int(floor(float(p[i])/32.)):p[i];
+        h=(h^uint(key[i]))*16777619u;
+    }
+    uint slot=h&uint(lookupMask);
+    for(int attempt=0;attempt<=lookupMask;++attempt) {
+        uint offset=keys[slot*7u+6u];
+        if(offset==0u)return 65535u;
+        bool same=true;
+        for(int i=0;i<6;++i)same=same && keys[slot*7u+uint(i)]==uint(key[i]);
+        if(same)return blocks[(offset-1u)*32u+uint(p[0]-key[0]*32)];
+        slot=(slot+1u)&uint(lookupMask);
+    }
+    return 65535u;
+}
+void main()
+{
+    float rd[6], next[6], delta[6]; int p[6], step[6];
+    float length2=0.;
+    for(int i=0;i<6;++i) { rd[i]=forward[i]+right[i]*(uv.x*2.-1.)*aspect+up[i]*(uv.y*2.-1.); length2+=rd[i]*rd[i]; }
+    for(int i=0;i<6;++i) {
+        rd[i]/=sqrt(length2); p[i]=int(floor(eye[i])); step[i]=rd[i]>=0.?1:-1;
+        delta[i]=abs(rd[i])<1e-8?1e30:abs(1./rd[i]);
+        next[i]=abs(rd[i])<1e-8?1e30:(step[i]>0?1.-fract(eye[i]):fract(eye[i]))*delta[i];
+    }
+    vec3 sky=vec3(0.);
+    color=vec4(sky,1.);
+    float distance=0.; int side=0;
+    for(int iteration=0;iteration<220 && distance<160.;++iteration) {
+        uint id=blockAt(p);
+        if(id==65535u) break;
+        if(id!=0u && id!=uint(doorOpen)) {
+            int tex=textures[int(id)*12+side];
+            if(id==uint(redirector)) {
+                int mask=0;
+                for(int m=0;m<maskCount;++m) {
+                    bool same=true; for(int i=0;i<6;++i) same= same && masks[m*8+i]==p[i];
+                    if(same) {mask=masks[m*8+6];break;}
+                }
+                tex=(mask&(1<<side))!=0?49:48;
+            }
+            float hit[6];
+            for(int i=0;i<6;++i) hit[i]=eye[i]+rd[i]*distance;
+            vec4 tangent=textureCoordinates(hit,side/2);
+            vec3 coord=vec3(tangent.xy,(floor(tangent.w*16.)+tangent.z)/16.);
+            vec4 sampleColor=texture(sampler3D(tiles[tex]),coord);
+            if(sampleColor.a>.001) {
+                float light=side==1?1.:side==0?.5:.72+float(side%3)*.07;
+                bool selected=targetSide==side; for(int i=0;i<6;++i) selected=selected && p[i]==target[i];
+                if(selected) light+=.15;
+                light*=.893;
+                color=vec4(mix(sampleColor.rgb*light,sky,clamp(distance/160.,0.,1.)*.3),1.);
+                break;
+            }
+        }
+        float nearest=1e30;
+        for(int i=0;i<6;++i) nearest=min(nearest,next[i]);
+        side=-1;
+        for(int i=0;i<6;++i) if(next[i]<=nearest+1e-6) {
+            p[i]+=step[i]; next[i]+=delta[i]; if(side<0) side=i*2+(step[i]>0?0:1);
+        }
+        distance=nearest;
+    }
+    if(preview) {
+        float enter=-1e30, leave=1e30;
+        for(int i=0;i<6;++i) {
+            if(abs(rd[i])<1e-8) {if(eye[i]<boxMin[i] || eye[i]>boxMax[i]) leave=-1e30;}
+            else {float a=(boxMin[i]-eye[i])/rd[i], b=(boxMax[i]-eye[i])/rd[i]; enter=max(enter,min(a,b)); leave=min(leave,max(a,b));}
+        }
+        float t=enter>=0.?enter:leave;
+        if(t>=0. && leave>=max(enter,0.) && t<=distance+.03) {
+            int boundaries=0;
+            for(int i=0;i<6;++i) {float v=eye[i]+rd[i]*t; if(min(abs(v-boxMin[i]),abs(v-boxMax[i]))<.045) ++boundaries;}
+            if(boundaries>=2) color=vec4(.1,1.,.25,1.);
+        }
+    }
+}

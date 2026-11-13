@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\SoLoud.2020.2.7\build\native\SoLoud.props" Condition="Exists('packages\SoLoud.2020.2.7\build\native\SoLoud.props')" />
+  <Import Project="packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props" Condition="Exists('packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props')" />
+  <Import Project="packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props" Condition="Exists('packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props')" />
+  <Import Project="packages\GLEW-dynamic.redist.2.2.0\build\native\GLEW-dynamic.redist.props" Condition="Exists('packages\GLEW-dynamic.redist.2.2.0\build\native\GLEW-dynamic.redist.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{d28c96a5-0cdd-4cde-aff4-8d66d6b91fb7}</ProjectGuid>
+    <RootNamespace>My5DMiner</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>Penteract Placer</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>Penteract Placer</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);libs\ndtf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libs\ndtf\libs\ndtf-debug.lib;libs\ndtf\libs\deflatestatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);libs\ndtf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libs\ndtf\libs\ndtf.lib;libs\ndtf\libs\deflatestatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="audio.cpp" />
+    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="Directory.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="StateControls.cpp" />
+    <ClCompile Include="StateCreateWorld.cpp" />
+    <ClCompile Include="StateGeneratingWorld.cpp" />
+    <ClCompile Include="StateLoadWorld.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
+    <ClCompile Include="GPUBuffer.cpp" />
+    <ClCompile Include="ui.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Math5D.cpp" />
+    <ClCompile Include="QuadRenderer.cpp" />
+    <ClCompile Include="QuadRendererBasic.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="TextureProfile.cpp" />
+    <ClCompile Include="StateTextureEditor.cpp" />
+    <ClCompile Include="StateGame.cpp" />
+    <ClCompile Include="StateGame6D.cpp" />
+    <ClCompile Include="StateGame7D.cpp" />
+    <ClCompile Include="StateGame8D.cpp" />
+    <ClCompile Include="StateGame9D.cpp" />
+    <ClCompile Include="StateGame10D.cpp" />
+    <ClCompile Include="StateGame11D.cpp" />
+    <ClCompile Include="StateGame12D.cpp" />
+    <ClCompile Include="StateGame13D.cpp" />
+    <ClCompile Include="StateGame14D.cpp" />
+    <ClCompile Include="StateGame15D.cpp" />
+    <ClCompile Include="WorldNDRegistry.cpp" />
+    <ClCompile Include="StateCompileND.cpp" />
+    <ClCompile Include="StateGame16D.cpp" />
+    <ClCompile Include="StateGame17D.cpp" />
+    <ClCompile Include="StateGame18D.cpp" />
+    <ClCompile Include="StateGame19D.cpp" />
+    <ClCompile Include="StateGame20D.cpp" />
+    <ClCompile Include="StateGame21D.cpp" />
+    <ClCompile Include="StateGame22D.cpp" />
+    <ClCompile Include="StateGame23D.cpp" />
+    <ClCompile Include="StateGame24D.cpp" />
+    <ClCompile Include="StateGame25D.cpp" />
+    <ClCompile Include="StateGame26D.cpp" />
+    <ClCompile Include="StateGame27D.cpp" />
+    <ClCompile Include="StateGame28D.cpp" />
+    <ClCompile Include="StateGame29D.cpp" />
+    <ClCompile Include="StateGame30D.cpp" />
+    <ClCompile Include="StateGame31D.cpp" />
+    <ClCompile Include="StateGame32D.cpp" />
+    <ClCompile Include="StateGame33D.cpp" />
+    <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="StateTitleScreen.cpp" />
+    <ClCompile Include="Model5D.cpp" />
+    <ClCompile Include="Model5DHull.cpp" />
+    <ClCompile Include="StateModelMaker.cpp" />
+    <ClCompile Include="TexRenderer.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureBuffer.cpp" />
+    <ClCompile Include="World.cpp" />
+    <ClCompile Include="WorldTemporal.cpp" />
+    <ClCompile Include="Structures.cpp" />
+    <ClCompile Include="StateGameStructure.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\quad.frag" />
+    <None Include="assets\shaders\quad.vert" />
+    <None Include="assets\shaders\quadBasic.vert" />
+    <None Include="assets\shaders\renderer.frag" />
+    <None Include="assets\shaders\sliceMesh.vert" />
+    <None Include="assets\shaders\sliceMesh6d.frag" />
+    <None Include="assets\shaders\sliceMesh7d.frag" />
+    <None Include="assets\shaders\renderer6d.frag" />
+    <None Include="assets\shaders\renderer7d.frag" />
+    <None Include="assets\shaders\renderer.vert" />
+    <None Include="assets\shaders\tex.frag" />
+    <None Include="assets\shaders\text.frag" />
+    <None Include="assets\shaders\text.geom" />
+    <None Include="assets\shaders\text.vert" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="libs\qhull\libqhull_r\*.c">
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)qhull\</ObjectFileName>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="audio.h" />
+    <ClInclude Include="Chunk.h" />
+    <ClInclude Include="Directory.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="Block.h" />
+    <ClInclude Include="MashPool.h" />
+    <ClInclude Include="OpenSimplexNoise.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="StateControls.h" />
+    <ClInclude Include="StateGame6D.h" />
+    <ClInclude Include="StateGame7D.h" />
+    <ClInclude Include="StateGame8D.h" />
+    <ClInclude Include="StateGame9D.h" />
+    <ClInclude Include="WorldCommands.h" />
+    <ClInclude Include="RotationTarget.h" />
+    <ClInclude Include="GameConsole.h" />
+    <ClInclude Include="StateGame10D.h" />
+    <ClInclude Include="StateGame11D.h" />
+    <ClInclude Include="StateGame12D.h" />
+    <ClInclude Include="StateGame13D.h" />
+    <ClInclude Include="StateGame14D.h" />
+    <ClInclude Include="StateGame15D.h" />
+    <ClInclude Include="StateCreateWorld.h" />
+    <ClInclude Include="StateGeneratingWorld.h" />
+    <ClInclude Include="StateLoadWorld.h" />
+    <ClInclude Include="TextRenderer.h" />
+    <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="GPUBuffer.h" />
+    <ClInclude Include="ui.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="Math5D.h" />
+    <ClInclude Include="QuadRenderer.h" />
+    <ClInclude Include="QuadRendererBasic.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="State.h" />
+    <ClInclude Include="StateGame.h" />
+    <ClInclude Include="StateManager.h" />
+    <ClInclude Include="StateTitleScreen.h" />
+    <ClInclude Include="Model5D.h" />
+    <ClInclude Include="StateModelMaker.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TexRenderer.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureBuffer.h" />
+    <ClInclude Include="tuple_hash.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="vec5.h" />
+    <ClInclude Include="vec6.h" />
+    <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="5D-Miner.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\glfw.3.4.0\build\native\glfw.targets" Condition="Exists('packages\glfw.3.4.0\build\native\glfw.targets')" />
+    <Import Project="packages\glm.1.0.3\build\native\glm.targets" Condition="Exists('packages\glm.1.0.3\build\native\glm.targets')" />
+    <Import Project="packages\boost.1.87.0\build\boost.targets" Condition="Exists('packages\boost.1.87.0\build\boost.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\GLEW-dynamic.redist.2.2.0\build\native\GLEW-dynamic.redist.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\GLEW-dynamic.redist.2.2.0\build\native\GLEW-dynamic.redist.props'))" />
+    <Error Condition="!Exists('packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props'))" />
+    <Error Condition="!Exists('packages\glfw.3.4.0\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.3.4.0\build\native\glfw.targets'))" />
+    <Error Condition="!Exists('packages\glm.1.0.3\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.1.0.3\build\native\glm.targets'))" />
+    <Error Condition="!Exists('packages\boost.1.87.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.87.0\build\boost.targets'))" />
+    <Error Condition="!Exists('packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props'))" />
+    <Error Condition="!Exists('packages\SoLoud.2020.2.7\build\native\SoLoud.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\SoLoud.2020.2.7\build\native\SoLoud.props'))" />
+  </Target>
+</Project>

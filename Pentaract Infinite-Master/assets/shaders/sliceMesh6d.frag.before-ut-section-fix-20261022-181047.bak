@@ -1,0 +1,67 @@
+#version 450 core
+#extension GL_ARB_bindless_texture : require
+in vec3 meshPosition;
+flat in ivec3 meshCell;
+flat in uvec2 meshMaterial;
+out vec4 color;
+uniform float eye[6];
+uniform int meshAxes[2], target[6], targetSide, maskCount, redirector;
+uniform bool lineMode;
+uniform int textureUAxis;
+layout(std430,binding=2) readonly buffer Faces { int textures[]; };
+layout(std430,binding=3) readonly buffer Tiles { uvec2 tiles[]; };
+layout(std430,binding=4) readonly buffer Masks { int masks[]; };
+vec4 textureCoordinates(float hit[6], int normalAxis)
+{
+    // Visible extra axes retain planar UVs; hidden axes select recycled NDTF sections.
+    float hiddenU=textureUAxis<0?fract(hit[5]):0.;
+    float hiddenT=0.;
+    if(textureUAxis>=0) {
+        hit[textureUAxis]=hit[5];
+        if(normalAxis==5) normalAxis=textureUAxis;
+    }
+    vec4 coord;
+    if(normalAxis==1) coord=vec4(hit[2],1.-hit[0],hit[3],hit[4]);
+    else if(normalAxis==0) coord=vec4(hit[1],1.-hit[2],hit[3],hit[4]);
+    else if(normalAxis==2) coord=vec4(hit[1],1.-hit[0],hit[3],hit[4]);
+    else if(normalAxis==3) coord=vec4(hit[2],1.-hit[0],hit[1],hit[4]);
+    else coord=vec4(hit[2],1.-hit[0],hit[3],hit[1]);
+    coord=fract(coord);
+    coord.zw=fract(coord.zw+vec2(hiddenU,hiddenT));
+    int turn=(int(floor(hiddenU*4.))+3*int(floor(hiddenT*4.)))%4;
+    if(turn==1) coord.xy=vec2(1.-coord.y,coord.x);
+    else if(turn==2) coord.xy=1.-coord.xy;
+    else if(turn==3) coord.xy=vec2(coord.y,1.-coord.x);
+    return coord;
+}
+
+void main() {
+    if(lineMode){color=vec4(.1,1.,.25,1.);return;}
+    int side=int(meshMaterial.y),id=int(meshMaterial.x);
+    float hit[6];int p[6];float distance2=0.;
+    for(int i=0;i<6;++i){hit[i]=eye[i];p[i]=int(floor(eye[i]));}
+    hit[0]=meshPosition.x;hit[meshAxes[0]]=meshPosition.y;hit[meshAxes[1]]=meshPosition.z;
+    p[0]=meshCell.x;p[meshAxes[0]]=meshCell.y;p[meshAxes[1]]=meshCell.z;
+    if((side%2==0?-1.:1.)*(eye[side/2]-hit[side/2])<0.)discard;
+    for(int i=0;i<6;++i){float delta=hit[i]-eye[i];distance2+=delta*delta;}
+    float distance=sqrt(distance2);if(distance>=160.)discard;
+    int tex=textures[id*12+side];
+    if(id==redirector) {
+        int mask=0;
+        for(int m=0;m<maskCount;++m) {
+            bool same=true;for(int i=0;i<6;++i)same=same && masks[m*8+i]==p[i];
+            if(same){mask=masks[m*8+6];break;}
+        }
+        tex=(mask&(1<<side))!=0?49:48;
+    }
+    vec4 tangent=textureCoordinates(hit,side/2);
+    vec3 coord=vec3(tangent.xy,(floor(tangent.w*16.)+tangent.z)/16.);
+    vec4 sampleColor=texture(sampler3D(tiles[tex]),coord);
+    if(sampleColor.a<=.001)discard;
+    float light=side==1?1.:side==0?.5:.72+float(side%3)*.07;
+    bool selected=targetSide==side;
+    for(int i=0;i<6;++i)selected=selected && p[i]==target[i];
+    if(selected)light+=.15;
+    light*=.893;
+    color=vec4(sampleColor.rgb*light*(1.-clamp(distance/160.,0.,1.)*.3),1.);
+}

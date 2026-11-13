@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="5D-Miner.vcxproj" />
+  <PropertyGroup>
+    <TargetName>ND-$(NdDimension)</TargetName>
+    <OutDir>$(MSBuildProjectDirectory)\nd-cache\$(NdDimension)\bin\</OutDir>
+    <IntDir>$(MSBuildProjectDirectory)\nd-cache\$(NdDimension)\obj\</IntDir>
+    <TargetDir>$(OutDir)</TargetDir>
+    <TargetFileName>$(TargetName).exe</TargetFileName>
+    <TargetPath>$(OutDir)$(TargetFileName)</TargetPath>
+    <TLogLocation>$(IntDir)$(MSBuildProjectName).tlog\</TLogLocation>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Remove="@(ClCompile)" />
+    <ClCompile Include="WorldNDRegistry.cpp" />
+    <ClCompile Include="RuntimeWorldND.cpp" />
+    <Object Include="5D-Miner\x64\Release\**\*.obj" Exclude="5D-Miner\x64\Release\WorldNDRegistry.obj" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile><PreprocessorDefinitions>ND_RUNTIME_DIMENSION=$(NdDimension);%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+    <!-- Reserve address space, not 16 MiB of committed RAM per thread. -->
+    <Link><StackReserveSize>16777216</StackReserveSize></Link>
+  </ItemDefinitionGroup>
+  <Target Name="ValidateDimension" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(NdDimension)'==''" Text="NdDimension is required." />
+  </Target>
+</Project>
